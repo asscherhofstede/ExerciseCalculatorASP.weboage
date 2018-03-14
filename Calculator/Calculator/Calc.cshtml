@@ -1,0 +1,55 @@
+﻿@{
+
+        Validation.RequireField("left", "linker waarde mag niet leeg zijn");
+        Validation.RequireField("right", "rechter waarde mag niet leeg zijn");
+
+        int a = 0, b = 0;
+        int resultaat = 0;
+
+        if (IsPost && Validation.IsValid())
+        {
+            a = Request.Form["left"].AsInt();
+            b = Request.Form["right"].AsInt();
+
+            string oper = Request.Form["operator"];
+            switch (oper)
+            {
+                case "+": resultaat = a + b;break;
+                case "-": resultaat = a - b;break;
+                case "x": resultaat = a * b; break;
+            }
+        }
+
+
+        
+    }
+
+    @if (IsPost)
+    {
+    <h1>@resultaat</h1>
+    }
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <title>Test</title>
+</head>
+<body>
+    <form method="post">
+        <input type="text" name="left" value="@Request.Form["left"]" />
+        
+        <select name="operator">
+            <option value="+">+</option>
+            <option value="-">-</option>
+            <option value="x">x</option>
+        </select>
+
+
+        <input type="text" name="right"value="@Request.Form["right"]" />
+        <button type="submit">Calc</button>
+        @Html.ValidationSummary()
+    </form>
+</body>
+</html>

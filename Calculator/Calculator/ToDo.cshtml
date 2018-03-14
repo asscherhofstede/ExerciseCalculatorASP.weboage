@@ -1,0 +1,23 @@
+﻿@using WebMatrix.Data
+
+@{
+    Database db2 = Database.Open("TodoDbCntStrng");
+
+    var rows = db2.Query("SELECT * FROM Todo");
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    @foreach (var row in rows)
+    {
+        <ul>
+            <li>@row.Task -- @row.Discription</li>
+        </ul>
+    }
+</body>
+</html>
