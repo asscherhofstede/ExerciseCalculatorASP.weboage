@@ -1,23 +1,85 @@
 ﻿@using WebMatrix.Data
 
 @{
+    Validation.RequireField("Task");
+    Validation.Add("Task", Validator.StringLength(50, 3, "invoer moet tussen de 3 en 5 chars lang zijn"));
+
     Database db2 = Database.Open("TodoDbCntStrng");
 
-    var rows = db2.Query("SELECT * FROM Todo");
+    if (!Request.QueryString["deleteId"].IsEmpty() && Request.QueryString["deleteId"].IsInt())
+    {
+        int deleteId = Request.QueryString["deleteId"].AsInt();
+        string delete = "DELETE FROM Todo WHERE Id = @0";
+        db2.Execute(delete, Request.QueryString["deleteId"]);
+    }
+
+
+
+    if (IsPost && Validation.IsValid())
+    {
+        string task = Request.Form["Task"];
+        string description = Request.Form["Description"];
+
+        string insert = "INSERT INTO Todo (Task, Description) VALUES (@0, @1 )";
+
+        db2.Execute(insert, task, description);
+    }
+
+    if (IsPost && Validation.IsValid())
+    {
+        int UpdateId = Request.Form["UpdateId"].AsInt();
+        string UpdateTask = Request.Form["UpdateTask"];
+        string UpdateDescription = Request.Form["UpdateDescription"];
+        string UpdateQuery = "UPDATE Todo SET Task=@1, Description=@2 WHERE Id=@0";
+        db2.Execute(UpdateQuery, UpdateId, UpdateTask, UpdateDescription);
+
+
+    }
+
+    var rows = db2.Query("SELECT Id, Task, Description FROM Todo");
+    var grid = new WebGrid(rows);
 }
 
-
+@grid.GetHtml()
+s
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>Opdrachten</title>
 </head>
 <body>
-    @foreach (var row in rows)
-    {
-        <ul>
-            <li>@row.Task -- @row.Discription</li>
-        </ul>
-    }
+        <form method="post">
+            <div>
+                <label>Task</label>
+                <input type="text" name="task" />
+                @Html.ValidationMessage("task ")
+            </div>
+            <div>
+                <label>Description</label>
+                <input type="text" name="Description" />
+                <button type="submit">Add</button>
+                <input type="hidden" name="operation" value="add" />
+            </div>
+        </form>
+    <form>
+        <div>
+            <label>Delete</label>
+            <input type="text" name="DeleteId" />
+            <button type="submit">delete</button>
+            <input type="hidden" name=”operation” value=”delete”>
+
+        </div>
+    </form>
+    <form>
+        <div>
+            <label>Id</label>
+            <input type="text" name="UpdateId" />
+            <label>Task</label>
+            <input type="text" name="UpdateTask" />
+            <label>Description</label>
+            <input type="text" name="UpdateDescription" />
+        </div>
+        <div><button type="submit">update</button></div>
+    </form>
 </body>
 </html>
